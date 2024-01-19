@@ -2,8 +2,13 @@ import os
 import json
 import paho.mqtt.client as mqtt
 from paho.mqtt.client import MQTT_ERR_SUCCESS, MQTT_ERR_NO_CONN
+from modules.meas_logger import MeasurementContainer
+from modules.sensor_container import SensorContainer
+# from meas_logger import MeasurementContainer
+# from sensor_container import SensorContainer    
+import datetime
 
-class MQTTCommandHandler():
+class MQTTCommandHandler(SensorContainer, MeasurementContainer):
     def __init__(self, command_list_filename="commandlist.json", passes_filename="passes\\network.pw") -> None:
         self.current_path = os.path.dirname(__file__)
         self.passes_filename = passes_filename  # File containing the mqtt host
@@ -26,12 +31,74 @@ class MQTTCommandHandler():
     def _on_message(self, client, userdata, message):
         print(f"received {message.topic} {str(message.payload)}")
 
+    def handle_temperature(self, sensor, measurement_raw_value):
+        # (ID INT PRIMARY KEY, type TEXT, lowCalibrationPoint INT, highCalibrationPoint INT, isCalibrated INT) is the sensor table/tuple
+        sen_id = sensor[0]
+        sen_type = sensor[1]
+        sen_lowCalibrationPoint = sensor[2]
+        sen_highCalibrationPoint = sensor[3]
+        sen_isCalibrated = sensor[4]
+
+        if not sen_isCalibrated:
+            measurement_percentage_value = None
+        else:
+            measurement_percentage_value = self.get_percentage_value(
+                raw_value = int(measurement_raw_value), 
+                lowCalibrationPoint = sen_lowCalibrationPoint, 
+                highCalibrationPoint = sen_highCalibrationPoint
+            )
+
+        self.add_measurement(
+            measurement_sensor_id=sen_id,
+            measurement_type='temperature',
+            measurement_raw_value=measurement_raw_value,
+            measurement_percentage_value=measurement_percentage_value,
+            measurement_timestamp=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        )
+        pass
+
+    def handle_humidity(self, sensor, measurement_raw_value):
+        # Handle humidity measurement
+        pass
 
     def _on_sensor_data(self, client, userdata, message):
-        
+        """
+        Callback for when a sensor publishes data to the mqtt broker
+        Reads sensors from database. If sensor is not registered in the database, it will be ignored
+        Register function will be added later
+        Calls the appropriate handler function for the measurement type"""
+
         sensor_id = message.topic.split('/')[1]
+        measurement_type = message.topic.split('/')[3]
+        measurement_raw_value=message.payload.decode('utf-8')
+
+        # Get the sensor object
+        sensor = self.get_sensor(int(sensor_id))
+        if sensor == None:
+            print(f"Sensor with id {sensor_id} not found in database")
+            return
+
+        # Create a dictionary to map measurement types to functions
+        # TODO: Make list of measurement types in a json. Read from json and create dictionary
+        measurement_handlers = {
+            "temp": self.handle_temperature,
+            "hum": self.handle_humidity,
+        }
+
+        # Get the function for the current measurement type
+        handler = measurement_handlers.get(measurement_type)
+
+        # Call the function if it exists
+        if handler is not None:
+            handler(sensor, measurement_raw_value)
+        else:
+            print(f"Unknown measurement type: {measurement_type}")
+ 
         data = message.payload
-        print(f"Sensor {sensor_id} data: {data}")
+        print(f"SensorID {sensor_id} type: {measurement_type} data: {data}")
+
+    def get_percentage_value(self, raw_value, lowCalibrationPoint, highCalibrationPoint):
+        return (raw_value - lowCalibrationPoint) / (highCalibrationPoint - lowCalibrationPoint)
 
     def _get_mqtt_host(self):
         try:

@@ -67,9 +67,13 @@ class SensorContainer:
 
     def get_sensor(self, sensor_id):
         """returns the sensor with the given id as tuple"""
+        
         if self.__sensor_list == None:
             self.__select_db()
-        return self.__sensor_list[sensor_id]
+        try:
+            return self.__sensor_list[sensor_id]
+        except IndexError:
+            return None
 
     def get_sensors(self):
         """returns all sensors as list of tuples"""
