@@ -1,0 +1,7 @@
+{
+    "commands" : 
+    {
+        "CMD_GET_HUMIDITY_DATA": "get_hum_data",
+        "CMD_GET_TEMPERATURE_DATA": "get_temp_data"
+    }
+}
