@@ -19,11 +19,11 @@ if __name__ == '__main__':
     # The main thread can continue doing other things
     while True:
         mqtt_handler.invoke_humidity_measurment('1')
-        mqtt_handler.publish('sensor/01/status', timestamp())
-        mqtt_handler.publish('sensor/00/data/hum', str(42 + int(30 * random.random())))
-        mqtt_handler.publish('sensor/00/data/temp', str(42 + int(30 * random.random())))
-        mqtt_handler.publish('sensor/01/data/temp', str(40000 + int(60000 * random.random()))) 
-        sleep(3)
+        # mqtt_handler.publish('sensor/01/status', timestamp())
+        # mqtt_handler.publish('sensor/00/data/hum', str(42 + int(30 * random.random())))
+        # mqtt_handler.publish('sensor/00/data/temp', str(42 + int(30 * random.random())))
+        # mqtt_handler.publish('sensor/01/data/temp', str(40000 + int(60000 * random.random()))) 
+        sleep(10)
 
     # If you want to wait for the MQTT thread to finish before exiting the main thread
     mqtt_thread.join()

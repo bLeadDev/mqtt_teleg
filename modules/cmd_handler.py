@@ -31,13 +31,17 @@ class MQTTCommandHandler(SensorContainer, MeasurementContainer):
     def _on_message(self, client, userdata, message):
         print(f"received {message.topic} {str(message.payload)}")
 
-    def handle_temperature(self, sensor, measurement_raw_value):
+    def handle_humidity(self, sensor, measurement_raw_value):
         # (ID INT PRIMARY KEY, type TEXT, lowCalibrationPoint INT, highCalibrationPoint INT, isCalibrated INT) is the sensor table/tuple
         sen_id = sensor[0]
         sen_type = sensor[1]
         sen_lowCalibrationPoint = sensor[2]
         sen_highCalibrationPoint = sensor[3]
         sen_isCalibrated = sensor[4]
+        print("Handle temperature")
+        print(f"Sensor {sen_id} is calibrated: {sen_isCalibrated}") 
+        print(f"Sensor {sen_id} lowCalibrationPoint: {sen_lowCalibrationPoint}")    
+        print(f"Sensor {sen_id} raw value: {measurement_raw_value}")
 
         if not sen_isCalibrated:
             measurement_percentage_value = None
@@ -57,8 +61,8 @@ class MQTTCommandHandler(SensorContainer, MeasurementContainer):
         )
         pass
 
-    def handle_humidity(self, sensor, measurement_raw_value):
-        # Handle humidity measurement
+    def handle_temperature(self, sensor, measurement_raw_value):
+        
         pass
 
     def _on_sensor_data(self, client, userdata, message):
@@ -67,9 +71,15 @@ class MQTTCommandHandler(SensorContainer, MeasurementContainer):
         Reads sensors from database. If sensor is not registered in the database, it will be ignored
         Register function will be added later
         Calls the appropriate handler function for the measurement type"""
+        print(f"received osd {message.topic} {str(message.payload)}")
+
 
         sensor_id = message.topic.split('/')[1]
-        measurement_type = message.topic.split('/')[3]
+        try:
+            measurement_type = message.topic.split('/')[3]
+        except IndexError:
+            print(f"Invalid type: {message.topic}")
+            return
         measurement_raw_value=message.payload.decode('utf-8')
 
         # Get the sensor object

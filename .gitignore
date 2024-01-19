@@ -1,5 +1,6 @@
 # Password related files
 *.pw
+arduino_secrets.h
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
