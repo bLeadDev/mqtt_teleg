@@ -1,5 +1,6 @@
 import sqlite3
 
+# TODO: set database names as json file somewhere
 SENSOR_DATABASE_NAME = "projectX.db"
 SENSOR_TABLE_NAME = "sensors"
 

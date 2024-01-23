@@ -24,7 +24,7 @@ const char* mqtt_server = MQTT_IP_ADDR;
 // MQTT Topics
 char topic_sensor[64] = "sensor/";
 char topic_susbcribed[64] = "sensor/";
-
+//TODO: Add UUID as MAC address?
 // Identification
 char UUID[9] = "1";
 

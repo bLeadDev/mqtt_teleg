@@ -1,0 +1,17 @@
+-- database: c:\repos\mqtt_teleg\projectX.db
+
+-- Use the ▷ button in the top right corner to run the entire file.
+
+SELECT m.sensorID, m.normedValue, s.type, s.id, m.timestamp FROM measurements as m
+INNER JOIN sensors as s 
+ON m.sensorId = s.id
+-- WHERE sensors.type = 'ground_moisture' -- TODO: Add sensors types
+ORDER BY m.timestamp DESC
+LIMIT 10;
+
+SELECT s.id AS sensorID, MAX(m.normedValue) AS normedValue, s.type, s.id, MAX(m.timestamp) AS timestamp
+FROM measurements AS m
+INNER JOIN sensors AS s ON m.sensorId = s.id
+GROUP BY s.id, s.type
+ORDER BY MAX(m.timestamp) DESC
+LIMIT 10;

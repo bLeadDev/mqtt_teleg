@@ -21,7 +21,11 @@ class MQTTCommandHandler(SensorContainer, MeasurementContainer):
         #self.client.message_callback_add("sensor/+/data", self._on_sensor_data)
         self.client.message_callback_add("sensor/+/data/#", self._on_sensor_data)
         self.mqtt_host = self._get_mqtt_host()
-        self.client.connect(self.mqtt_host, 1883, 60)
+        try:
+            self.client.connect(self.mqtt_host, 1883, 60)
+        except Exception as e:
+            print(f"An error occurred connecting to mqtt broker: {e}")
+            exit(1)
 
         self.client.loop_start()
 
@@ -54,12 +58,11 @@ class MQTTCommandHandler(SensorContainer, MeasurementContainer):
 
         self.add_measurement(
             measurement_sensor_id=sen_id,
-            measurement_type='temperature',
+            measurement_type='humidity_ground',
             measurement_raw_value=measurement_raw_value,
             measurement_percentage_value=measurement_percentage_value,
             measurement_timestamp=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         )
-        pass
 
     def handle_temperature(self, sensor, measurement_raw_value):
         
@@ -105,7 +108,7 @@ class MQTTCommandHandler(SensorContainer, MeasurementContainer):
             print(f"Unknown measurement type: {measurement_type}")
  
         data = message.payload
-        print(f"SensorID {sensor_id} type: {measurement_type} data: {data}")
+        print(f"Handled: SensorID {sensor_id} type: {measurement_type} data: {data}")
 
     def get_percentage_value(self, raw_value, lowCalibrationPoint, highCalibrationPoint):
         return (raw_value - lowCalibrationPoint) / (highCalibrationPoint - lowCalibrationPoint)

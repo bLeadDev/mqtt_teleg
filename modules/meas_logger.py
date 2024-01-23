@@ -60,6 +60,7 @@ class MeasurementContainer:
         
         connection = sqlite3.connect(MEAS_DATABASE_FILE_NAME)
         cursor = connection.cursor()
+        # TODO: rename the high and low calibration points to calpoints (ground or air humidity) in whole database
         cursor.execute(
             "INSERT INTO " + MEAS_TABLE_NAME + " (sensorID, type, rawValue, normedValue, timestamp) VALUES (?, ?, ?, ?, ?)",
             (
