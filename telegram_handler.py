@@ -12,13 +12,11 @@ from threading import Thread
 
 from modules.cmd_handler import MQTTCommandHandler as MQTTCommandHandler
 
-
-# def timestamp():
-#     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
 # TODO: set database "humidity ground" stuff to moisture
 # TODO: check all todos. They are separated
-# TODO: Get rid of the global variable. Of yet no idea how to invoke the measurment without setting a flag
+# TODO: Get rid of the global call or whatever it is. Of yet no idea how to invoke the measurment without it. Maybe a flag? maybe throgh database?
+#       As of now the mqtt handler gets called somewhat global. Very confusing and bad design. Fix this! (Thank you Copilot)
+# TODO: Make a more general callable interface to the database not this kind of container thingy. 
 
 SENSOR_DATABASE_NAME = "projectX.db"
 SENSOR_TABLE_NAME = "sensors"
@@ -29,10 +27,9 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-
 class TGApplication:
-    def __init__(self, mqtt_handler: MQTTCommandHandler) -> None:
-        self.mqtt_handler = mqtt_handler
+    def __init__(self) -> None:
+        pass
 
     def run(self):
         try:
@@ -83,7 +80,7 @@ class TGApplication:
         connection.close()
         msg = "Last measurments:\n"
         for entry in newest_entries:
-            msg += f"ID: {entry[0]} at {entry[4][:19]} Value: {str(entry[1]).ljust(8)} Type: {entry[2]}\n"
+            msg += f"ID: {entry[0]} at {entry[4][:19]} Value: {str(entry[1]).ljust(8)} Type: {entry[2]}\n" # End entry 4 at 19 to cut off the milliseconds
             print(entry)
         return msg
 
@@ -113,17 +110,15 @@ class TGApplication:
             print(f"Invoked humidity measurment for sensor {sensor_id}")   
             sleep(1)
 
-        msg = f"Registered sensors: {sensor_count}. Sending measurment command to every one"
+        msg = f"Registered sensors: {sensor_count}. Sent measurment command to every one."
         await context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
-
-
 
 
 
 if __name__ == '__main__':
     mqtt_handler = MQTTCommandHandler()
 
-    application = TGApplication(mqtt_handler=mqtt_handler)
+    application = TGApplication()
     application.run()    
 
 

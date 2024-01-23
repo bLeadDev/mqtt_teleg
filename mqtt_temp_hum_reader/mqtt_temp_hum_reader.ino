@@ -40,6 +40,7 @@ long delayAutoSend = 50000;
 
 // Status LED 
 const int ledPin = 4;
+const int moistureSensorOnOff = 5;
 
 // Frequency input
 int inputPin = 14;
@@ -55,6 +56,7 @@ void setup() {
   FreqCountESP.begin(inputPin, timerMs);
 
   pinMode(ledPin, OUTPUT);
+  pinMode(moistureSensorOnOff, OUTPUT);
   digitalWrite(ledPin, HIGH);
 
   strcat(topic_sensor, UUID);
@@ -64,7 +66,12 @@ void setup() {
 }
 
 void sendHumidityFrequency(){
+  digitalWrite(moistureSensorOnOff, HIGH);
+  Serial.println("Turning moisture sensor on and measure");
+  delay(2300);
   uint32_t frequency = FreqCountESP.read();
+  digitalWrite(moistureSensorOnOff, LOW);
+  
   char payload[32] = { 0 };
   sprintf(payload, "%d", frequency);
   Serial.print("Sending frequency payload: ");
