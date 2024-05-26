@@ -17,6 +17,9 @@ from modules.cmd_handler import MQTTCommandHandler as MQTTCommandHandler
 # TODO: Get rid of the global call or whatever it is. Of yet no idea how to invoke the measurment without it. Maybe a flag? maybe throgh database?
 #       As of now the mqtt handler gets called somewhat global. Very confusing and bad design. Fix this! (Thank you Copilot)
 # TODO: Make a more general callable interface to the database not this kind of container thingy. 
+# Überfalle
+# 
+
 
 SENSOR_DATABASE_NAME = "projectX.db"
 SENSOR_TABLE_NAME = "sensors"
@@ -110,7 +113,7 @@ class TGApplication:
             print(f"Invoked humidity measurment for sensor {sensor_id}")   
             sleep(1)
 
-        msg = f"Registered sensors: {sensor_count}. Sent measurment command to every one."
+        msg = f"Registered sensors: {sensor_count}. Sent measurement command to every one."
         await context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
 
