@@ -67,6 +67,17 @@ class TGApplication:
         return sensor_count
     
     @abstractmethod
+    def get_humidity_sensor_IDs() -> list[str]:
+        connection = sqlite3.connect(SENSOR_DATABASE_NAME)
+        cursor = connection.cursor()
+        cursor.execute("""
+    SELECT COUNT(*) FROM sensors;
+        """)
+        sensor_count = cursor.fetchone()[0]
+        connection.close()
+        return sensor_count
+    
+    @abstractmethod
     def pretty_print_humidity():
         # Get newest database entries for all connected sensors
         connection = sqlite3.connect(SENSOR_DATABASE_NAME)
